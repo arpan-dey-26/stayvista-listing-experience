@@ -1,7 +1,6 @@
 import type { Highlight } from '@/lib/types';
 import { Icon } from '@/components/ui/Icon';
 
-/** MEASURED: 24px icon at the content edge, text starting 48px in. */
 export function Highlights({ highlights }: { highlights: Highlight[] }) {
   return (
     <ul className="highlights">
