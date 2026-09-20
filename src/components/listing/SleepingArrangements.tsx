@@ -1,6 +1,5 @@
 import type { SleepingArrangement } from '@/lib/types';
 
-/** MEASURED: cards 318 wide, image 212 tall, 16px gap. */
 export function SleepingArrangements({ items }: { items: SleepingArrangement[] }) {
   return (
     <ul className="sleeping">
