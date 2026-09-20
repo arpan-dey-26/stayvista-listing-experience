@@ -1,70 +1,144 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
+import { Icon } from '@/components/ui/Icon';
 
 interface StayCalendarProps {
-  initialMonth?: Date;
+  initialFrom: string;
+  initialTo: string;
 }
 
-const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'] as const;
 
-function monthLabel(date: Date) {
-  return new Intl.DateTimeFormat('en-IN', { month: 'long', year: 'numeric' }).format(date);
+const iso = (year: number, month: number, day: number) =>
+  `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+
+const monthLabel = (year: number, month: number) =>
+  new Intl.DateTimeFormat('en-GB', { month: 'long', year: 'numeric' }).format(
+    new Date(Date.UTC(year, month, 1)),
+  );
+
+function monthGrid(year: number, month: number) {
+  const first = new Date(Date.UTC(year, month, 1));
+  const daysInMonth = new Date(Date.UTC(year, month + 1, 0)).getUTCDate();
+  return { daysInMonth, leading: first.getUTCDay() };
 }
 
-function daysInMonth(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+function shiftMonth(year: number, month: number, by: number) {
+  const next = new Date(Date.UTC(year, month + by, 1));
+  return { year: next.getUTCFullYear(), month: next.getUTCMonth() };
 }
 
-function startDay(date: Date) {
-  return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-}
+export function StayCalendar({ initialFrom, initialTo }: StayCalendarProps) {
+  const [cursor, setCursor] = useState(() => {
+    const parts = initialFrom.split('-').map(Number);
+    return { year: parts[0] ?? 2026, month: (parts[1] ?? 10) - 1 };
+  });
+  const [from, setFrom] = useState<string | null>(initialFrom);
+  const [to, setTo] = useState<string | null>(initialTo);
+  const [focusedDay, setFocusedDay] = useState<string>(initialFrom);
+  const gridRef = useRef<HTMLDivElement>(null);
 
-export function StayCalendar({ initialMonth = new Date(2026, 9, 1) }: StayCalendarProps) {
-  const [month, setMonth] = useState(new Date(initialMonth.getFullYear(), initialMonth.getMonth(), 1));
-  const [checkIn, setCheckIn] = useState<number | null>(18);
-  const [checkout, setCheckout] = useState<number | null>(23);
+  const second = useMemo(() => shiftMonth(cursor.year, cursor.month, 1), [cursor]);
 
-  const cells = useMemo(() => {
-    const leading = startDay(month);
-    return Array.from({ length: leading + daysInMonth(month) }, (_, index) =>
-      index < leading ? null : index - leading + 1,
-    );
-  }, [month]);
+  const select = (day: string) => {
+    if (!from || (from && to)) {
+      setFrom(day);
+      setTo(null);
+    } else if (day < from) setFrom(day);
+    else setTo(day);
+  };
 
-  const selectDay = (day: number) => {
-    if (!checkIn || checkout) {
-      setCheckIn(day);
-      setCheckout(null);
+  const moveFocus = (day: string, delta: number) => {
+    const [y, m, d] = day.split('-').map(Number);
+    const next = new Date(Date.UTC(y ?? 2026, (m ?? 1) - 1, (d ?? 1) + delta));
+    const nextIso = iso(next.getUTCFullYear(), next.getUTCMonth(), next.getUTCDate());
+    setFocusedDay(nextIso);
+    const shown = [
+      `${cursor.year}-${String(cursor.month + 1).padStart(2, '0')}`,
+      `${second.year}-${String(second.month + 1).padStart(2, '0')}`,
+    ];
+    if (!shown.includes(nextIso.slice(0, 7))) {
+      setCursor(shiftMonth(cursor.year, cursor.month, delta > 0 ? 1 : -1));
+    }
+    requestAnimationFrame(() => {
+      gridRef.current?.querySelector<HTMLElement>(`[data-day="${nextIso}"]`)?.focus();
+    });
+  };
+
+  const onKeyDown = (event: React.KeyboardEvent, day: string) => {
+    const moves: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 };
+    const delta = moves[event.key];
+    if (delta !== undefined) {
+      event.preventDefault();
+      moveFocus(day, delta);
       return;
     }
-    if (day > checkIn) setCheckout(day);
-    else setCheckIn(day);
+    if (event.key === 'PageUp' || event.key === 'PageDown') {
+      event.preventDefault();
+      setCursor(shiftMonth(cursor.year, cursor.month, event.key === 'PageUp' ? -1 : 1));
+    }
+  };
+
+  const renderMonth = (year: number, month: number) => {
+    const { daysInMonth, leading } = monthGrid(year, month);
+    return (
+      <div className="calendar__month" key={`${year}-${month}`}>
+        <h3 className="calendar__month-label">{monthLabel(year, month)}</h3>
+        <div className="calendar__weekdays" aria-hidden="true">
+          {WEEKDAYS.map((weekday) => <span key={weekday}>{weekday}</span>)}
+        </div>
+        <div className="calendar__days" role="rowgroup">
+          {Array.from({ length: leading }, (_, i) => <span key={`pad-${i}`} className="calendar__pad" />)}
+          {Array.from({ length: daysInMonth }, (_, i) => {
+            const day = iso(year, month, i + 1);
+            const isStart = day === from;
+            const isEnd = day === to;
+            const inRange = Boolean(from && to && day > from && day < to);
+            const label = new Intl.DateTimeFormat('en-GB', {
+              weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+            }).format(new Date(`${day}T00:00:00Z`));
+            return (
+              <button key={day} type="button" data-day={day} className="calendar__day"
+                data-selected={isStart || isEnd ? 'true' : undefined}
+                data-in-range={inRange ? 'true' : undefined}
+                aria-pressed={isStart || isEnd || inRange}
+                aria-label={isStart ? `Check-in ${label}` : isEnd ? `Checkout ${label}` : label}
+                tabIndex={day === focusedDay ? 0 : -1}
+                onFocus={() => setFocusedDay(day)}
+                onKeyDown={(event) => onKeyDown(event, day)}
+                onClick={() => select(day)}>
+                {i + 1}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
   };
 
   return (
-    <div className="calendar" aria-label="Choose dates">
+    <div className="calendar">
       <div className="calendar__header">
-        <button type="button" className="icon-button" aria-label="Previous month" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() - 1, 1))}>‹</button>
-        <strong>{monthLabel(month)}</strong>
-        <button type="button" className="icon-button" aria-label="Next month" onClick={() => setMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1))}>›</button>
+        <button type="button" className="icon-button" aria-label="Previous month" onClick={() => setCursor(shiftMonth(cursor.year, cursor.month, -1))}>
+          <Icon name="chevron-left" size={16} />
+        </button>
+        <button type="button" className="icon-button" aria-label="Next month" onClick={() => setCursor(shiftMonth(cursor.year, cursor.month, 1))}>
+          <Icon name="chevron-right" size={16} />
+        </button>
       </div>
-      <div className="calendar__weekdays" aria-hidden="true">
-        {WEEKDAYS.map((day) => <span key={day}>{day}</span>)}
+      <div className="calendar__months" ref={gridRef}>
+        {renderMonth(cursor.year, cursor.month)}
+        {renderMonth(second.year, second.month)}
       </div>
-      <div className="calendar__grid">
-        {cells.map((day, index) => day ? (
-          <button
-            key={day}
-            type="button"
-            className={day === checkIn ? 'calendar__day is-start' : day === checkout ? 'calendar__day is-end' : 'calendar__day'}
-            aria-pressed={day === checkIn || day === checkout}
-            onClick={() => selectDay(day)}
-          >
-            {day}
-          </button>
-        ) : <span key={`empty-${index}`} />)}
+      <div className="calendar__footer">
+        <button type="button" className="description__more" onClick={() => { setFrom(null); setTo(null); }}>
+          Clear dates
+        </button>
       </div>
+      <p aria-live="polite" className="visually-hidden">
+        {from && to ? `Selected ${from} to ${to}` : from ? `Check-in ${from} selected, choose a checkout date` : 'No dates selected'}
+      </p>
     </div>
   );
 }
