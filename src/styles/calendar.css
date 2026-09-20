@@ -1,0 +1,15 @@
+/* ============================================================================
+   Stay calendar (SEC-12)
+   ========================================================================== */
+.calendar { position: relative; }
+.calendar__header { display: flex; align-items: center; justify-content: space-between; margin-block-end: var(--space-block); }
+.calendar__months { display: grid; grid-template-columns: 1fr 1fr; gap: var(--size-calendar-gap); }
+.calendar__month-label { margin: 0 0 var(--space-block); font-size: var(--text-body); font-weight: var(--font-weight-semibold); text-align: center; }
+.calendar__weekdays, .calendar__days { display: grid; grid-template-columns: repeat(7, 1fr); }
+.calendar__weekdays { font-size: var(--text-fine); color: var(--color-ink-subtle); text-align: center; margin-block-end: var(--space-stack); }
+.calendar__pad { aspect-ratio: 1; }
+.calendar__day { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--color-ink); font-size: var(--text-meta); cursor: pointer; }
+.calendar__day:hover { outline: 1px solid var(--color-ink); }
+.calendar__day[data-in-range='true'] { background: var(--color-surface-sunken); border-radius: 0; }
+.calendar__day[data-selected='true'] { background: var(--color-action); color: var(--color-ink-inverse); }
+.calendar__footer { display: flex; justify-content: flex-end; margin-block-start: var(--space-block); }
