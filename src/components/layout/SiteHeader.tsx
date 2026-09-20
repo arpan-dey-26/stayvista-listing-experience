@@ -1,10 +1,29 @@
-import { PageShell } from './PageShell';
+'use client';
+
+import { useState } from 'react';
 import { Icon } from '@/components/ui/Icon';
+import { PageShell } from './PageShell';
 
 export function SiteHeader() {
-  return <header className="site-header"><PageShell variant="header" className="site-header__inner">
-    <a href="#main" className="site-header__brand" aria-label="StayVista home"><Icon name="heart" size={32} filled /><span className="visually-hidden">StayVista</span></a>
-    <nav className="site-header__search" aria-label="Search"><button type="button" className="text-action">Anywhere</button><button type="button" className="text-action">Anytime</button><button type="button" className="text-action">Add guests</button><button type="button" className="icon-button" aria-label="Search"><Icon name="search" size={16} /></button></nav>
-    <nav className="site-header__actions" aria-label="Account"><a href="#main" className="text-action">Become a host</a><button type="button" className="icon-button" aria-label="Choose a language and currency"><Icon name="globe" size={16} /></button><button type="button" className="icon-button" aria-label="Main navigation menu"><Icon name="menu" size={16} /></button></nav>
-  </PageShell></header>;
+  const [searchOpen, setSearchOpen] = useState(false);
+
+  return (
+    <header className="site-header">
+      <PageShell variant="header" className="site-header__inner">
+        <a href="#main" className="site-header__logo" aria-label="StayVista home">StayVista</a>
+        <nav className="site-header__nav" aria-label="Primary">
+          <a href="#photos">Photos</a>
+          <a href="#amenities">Amenities</a>
+          <a href="#reviews">Reviews</a>
+        </nav>
+        <div className="site-header__actions">
+          <button type="button" className="icon-button" aria-label="Search" onClick={() => setSearchOpen((value) => !value)}>
+            <Icon name="search" size={18} />
+          </button>
+          <button type="button" className="icon-button" aria-label="Menu"><Icon name="menu" size={18} /></button>
+        </div>
+      </PageShell>
+      {searchOpen ? <div className="site-header__search"><input aria-label="Search" placeholder="Search stays" autoFocus /></div> : null}
+    </header>
+  );
 }
