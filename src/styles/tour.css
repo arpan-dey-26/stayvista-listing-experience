@@ -1,0 +1,197 @@
+/* ============================================================================
+   Photo tour
+   ----------------------------------------------------------------------------
+   MEASURED from capture A (viewport 1339) and confirmed unchanged in capture H
+   (viewport 2005) — every internal dimension is identical at both widths, and
+   every x shifts by exactly (2005 − 1339) / 2 = 333. The tour is a fixed 976px
+   block, centred; it does not scale.
+   ========================================================================== */
+
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay-content);
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+}
+
+.tour__header {
+  position: relative;
+  z-index: var(--z-overlay-controls);
+  flex: 0 0 auto;
+  height: var(--size-tour-header);
+}
+
+.tour__back {
+  position: absolute;
+  left: var(--size-tour-control-inset);
+  top: var(--size-tour-control-inset);
+  width: var(--size-control);
+  height: var(--size-control);
+}
+
+.tour__title {
+  position: absolute;
+  inset-inline: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  margin: 0;
+  text-align: center;
+  font-size: var(--text-tour-title);
+  line-height: var(--text-tour-title--line-height);
+  font-weight: var(--font-weight-semibold);
+  pointer-events: none;
+}
+
+.tour__actions {
+  position: absolute;
+  right: var(--size-tour-actions-inset);
+  top: var(--size-tour-control-inset);
+  display: flex;
+  gap: var(--size-tour-actions-gap);
+}
+
+.tour__actions .icon-button {
+  width: var(--size-control);
+  height: var(--size-control);
+}
+
+.tour__scroller {
+  flex: 1 1 auto;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  scroll-padding-block-start: var(--size-tour-header);
+  scroll-behavior: smooth;
+  contain: paint;
+}
+
+.tour__content {
+  width: var(--size-tour-content);
+  margin-inline: auto;
+  padding-block-end: var(--space-section);
+}
+
+.tour__nav-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(8, var(--size-tour-thumb));
+  gap: var(--size-tour-thumb-gap);
+  align-items: start;
+}
+
+.tour__thumb {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-tour-thumb-label-gap);
+  width: var(--size-tour-thumb);
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: start;
+  cursor: pointer;
+  color: inherit;
+}
+
+.tour__thumb-image {
+  display: block;
+  width: var(--size-tour-thumb);
+  height: var(--size-tour-thumb-image);
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+}
+
+.tour__thumb-label {
+  font-size: var(--text-tour-label);
+  line-height: var(--size-tour-thumb-label-line);
+  color: var(--color-ink-subtle);
+}
+
+.tour__thumb[data-active='true'] .tour__thumb-label {
+  color: var(--color-ink);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tour__thumb:hover .tour__thumb-image {
+  opacity: 0.88;
+  transition: opacity var(--duration-instant) ease;
+}
+
+.tour__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-tour-category-gap);
+  margin-block-start: var(--size-tour-nav-gap);
+}
+
+.tour__category {
+  display: grid;
+  grid-template-columns: 1fr var(--size-tour-column);
+  align-items: start;
+}
+
+.tour__rail {
+  min-width: 0;
+  padding-inline-end: var(--space-section);
+}
+
+.tour__category-name {
+  margin: 0;
+  font-size: var(--text-subsection);
+  line-height: var(--text-subsection--line-height);
+  font-weight: var(--font-weight-semibold);
+}
+
+.tour__features {
+  list-style: none;
+  margin: var(--space-stack) 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  font-size: var(--text-meta);
+  color: var(--color-ink-subtle);
+}
+
+.tour__features > li + li::before {
+  content: '·';
+  padding-inline: var(--space-stack);
+}
+
+.tour__photos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--size-tour-photo-gap);
+  min-width: 0;
+}
+
+.tour__row {
+  display: flex;
+  gap: var(--size-tour-photo-gap);
+}
+
+.tour__photo {
+  flex: 1 1 0;
+  min-width: 0;
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  overflow: hidden;
+  aspect-ratio: 3 / 2;
+  border-radius: var(--radius-md);
+}
+
+.tour__image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tour__photo:hover .tour__image {
+  opacity: 0.92;
+  transition: opacity var(--duration-instant) ease;
+}
