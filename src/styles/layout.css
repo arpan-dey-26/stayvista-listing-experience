@@ -1,0 +1,106 @@
+/* ============================================================================
+   Layout primitives
+   ----------------------------------------------------------------------------
+   The page nests two containers, both MEASURED at two viewport widths:
+
+       viewport
+       └── .shell     max-width 1280, centred
+           └── inner  1120 content (80px padding each side)
+
+   Because the shell caps at 1280 and the gutter is fixed, the content column
+   resolves to 1120px at every viewport ≥ 1280 — which is the entire desktop
+   range this project targets. See docs/12-measurements.md § Layout.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.shell {
+  max-width: var(--container-shell);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+}
+
+.shell--header {
+  max-width: var(--size-header-inner);
+  margin-inline: auto;
+  padding-inline: var(--container-gutter);
+}
+
+.listing-body {
+  display: grid;
+  grid-template-columns: var(--size-content-column) var(--size-booking-card);
+  column-gap: var(--size-column-gap);
+  align-items: start;
+}
+
+.listing-body > * {
+  min-width: 0;
+}
+
+.section {
+  padding-block: var(--space-section);
+}
+
+.section--ruled {
+  border-top: 1px solid var(--color-line);
+}
+
+.section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-block);
+}
+
+.section__header .section__heading {
+  margin-bottom: 0;
+}
+
+.section__heading {
+  font-size: var(--text-section);
+  line-height: var(--text-section--line-height);
+  font-weight: var(--font-weight-semibold);
+  margin: 0 0 var(--space-block);
+}
+
+.section--wide {
+  grid-column: 1 / -1;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-stack);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+}
+
+.rating,
+.rating__visual {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+}
