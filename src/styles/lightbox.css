@@ -1,0 +1,97 @@
+/* ============================================================================
+   Lightbox
+   ----------------------------------------------------------------------------
+   MEASURED across captures C (1339), E, F and G (2005):
+
+     image   1100 wide at BOTH widths and for BOTH source aspects —
+             1100 × 617.2 from a 1440 × 808 source, 1100 × 825 from a
+             1440 × 1080 one. So the width is a fixed cap and the height is the
+             source's own. Centred on both axes: at 1339 the image spans
+             119.5…1219.5 (centre 669.5 = 1339 / 2) and sits at y 339.4 in a
+             1296-tall viewport (centre 648 = 1296 / 2).
+     arrows  40 × 40 at x 20 and at vw − 60, y 628 — centre 648, the viewport's
+     exits   "Show all photos" 40 × 40 at (16, 16);
+             "Close" 40 × 40 at y 16 with its right edge at vw − 24
+     ends    Next is `disabled` at photo 43; both enabled at 25, 28 and 40
+
+   Backdrop colour and opacity, radii, the focus ring and the photo-to-photo
+   transition were never captured and use provisional tokens (LIGHT-1, LIGHT-4).
+   ========================================================================== */
+
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay-controls);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbox__backdrop {
+  position: absolute;
+  inset: 0;
+  background: var(--color-surface-overlay);
+  opacity: var(--opacity-viewer-backdrop);
+}
+
+.lightbox__figure {
+  position: relative;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lightbox__image {
+  width: var(--size-lightbox-image);
+  height: auto;
+  max-width: 100vw;
+  max-height: 100vh;
+  object-fit: contain;
+}
+
+.lightbox__caption {
+  position: absolute;
+  bottom: calc(-1 * var(--space-section));
+  display: flex;
+  gap: var(--space-block);
+  align-items: baseline;
+  font-size: var(--text-meta);
+  color: var(--color-surface);
+}
+
+.lightbox__category {
+  font-weight: var(--font-weight-semibold);
+}
+
+.lightbox__nav,
+.lightbox__exit {
+  position: absolute;
+  width: var(--size-control);
+  height: var(--size-control);
+}
+
+.lightbox__nav {
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.lightbox__nav--previous {
+  left: var(--size-lightbox-arrow-inset);
+}
+
+.lightbox__nav--next {
+  right: var(--size-lightbox-arrow-inset);
+}
+
+.lightbox__exit {
+  top: var(--size-lightbox-exit-inset);
+}
+
+.lightbox__exit--tour {
+  left: var(--size-lightbox-exit-inset);
+}
+
+.lightbox__exit--close {
+  right: var(--size-lightbox-close-inset);
+}
